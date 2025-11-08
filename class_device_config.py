@@ -1,5 +1,4 @@
 from netmiko import ConnectHandler
-import yaml
 from netmiko import NetmikoTimeoutException, NetmikoAuthenticationException
 
 class ConfigDevices():

@@ -1,8 +1,7 @@
-hostname SW_CORE_1
+hostname name # SW_CORE_1
 
-enable secret Mypass123!
-do sho run | inc ena
-username utnfrc privilege 15 secret 5
+enable secret password # Mypass123!
+username utnfrc privilege 15 secret 5 encrypted_password
 
 no ip domain lookup
 ip domain name mydomain.local
@@ -14,20 +13,17 @@ crypto key generate rsa label sshkeys
 ip ssh rsa keypair-name sshkeys
 
 interface GigabitEthernet0/0
- description ### Connect to Cloud0 - VLAN 1 Mgmt/OOB ###
+ description ### Link to Cloud0 - Mgmt/OOB ###
+ no switchport
+ ip address 192.168.100.201 255.255.255.0
+ negotiation auto
  no shutdown
- exit
-inteface vlan 1
- description ### Connect to VTYs - VLAN 1 Mgmt/OOB ###
- ip address 192.168.100.200 255.255.255.0
- no shutdown
- exit
- 
+
 line aux 0
  exec-timeout 0 1
  no exec
  transport output none
-line vty 0 4
+line vty 0 15
  exec-timeout 20 0
  login local
  transport input ssh
