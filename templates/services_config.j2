@@ -1,0 +1,20 @@
+{#-Services Configuration Template #}
+!
+{%- if services_config %}
+  ip name-server {{ services_config.dns_server.ip_server1 }}
+  ip name-server {{ services_config.dns_server.ip_server2 }}
+!
+  ntp server {{ services_config.ntp_server.ip_server1 }} prefer iburst
+  ntp server {{ services_config.ntp_server.ip_server2 }}
+!
+  logging trap informational
+  logging source-interface {{ services_config.source_interface }}
+  logging host {{ services_config.syslog_server.ip_server1 }}
+  logging host {{ services_config.syslog_server.ip_server2 }}
+!
+  snmp-server community {{ services_config.snmp_server.snmp_community }} RO
+  snmp-server trap-source {{ services_config.source_interface }}
+  snmp-server host {{ services_config.snmp_server.ip_server1 }} version 2c {{ services_config.snmp_server.snmp_community }}
+  snmp-server host {{ services_config.snmp_server.ip_server1 }} traps version 2c {{ services_config.snmp_server.snmp_community }}
+!
+{% endif -%}

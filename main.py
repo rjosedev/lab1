@@ -13,11 +13,13 @@ def main():
     # Leer archivo modelo de datos
     dic_modelo = create_config.read_yaml("modelo_datos.yaml")
     print (json.dumps(dic_modelo, indent=4))
+    input("Presionar ENTER para continuar...")
 
     # Inicializar menu de seleccion multiple de dispositivos en forma de lista, permitiendo seleccionar varios dispositivos
+    print (f"-> Iniciando menu de selección de dispositivos utilizando librería simple-term-menu...")
     terminal_menu = TerminalMenu(
         menu_entries=[device.get('hostname') for device in dic_modelo.get("modelo").get("infra_spec").get("devices")],
-        title="  Selecciona los dispositivos a configurar. \n  Usa Espacio para seleccionar y Enter para confirmar. \n",
+        title="Selecciona los dispositivos a configurar. \n ESPACIO para seleccionar \n TAB para multi-selección \n ENTER para seleccionar y confirmar \n",
         menu_cursor="> ",
         menu_cursor_style=("fg_green", "bold"),
         menu_highlight_style=("bg_green", "fg_black"),
@@ -64,25 +66,25 @@ def main():
         if device.get('hostname') not in terminal_menu.chosen_menu_entries:
             print(f"{'->'} Dispositivo '{device.get('hostname')}' no seleccionado. Saltando configuración.")
             continue
-        connection_params = device.get("connection")
-        host_ip = connection_params.get("host")
+        ssh_connect_params = device.get("ssh_connect")
+        host = ssh_connect_params.get("host")
         hostname = device.get("hostname")
         
         # Conectar al dispositivo
-        connection = net_conf.connect_device(connection_params)
-        print(f"{'\n'}Conectado al dispositivo '{hostname}' en IP '{host_ip}'")
+        connection = net_conf.connect_device(ssh_connect_params)
+        print(f"{'\n'}Conectado al dispositivo '{hostname}' en IP '{host}'")
         
         # Leer archivos de configuracion y enviarlos a los dispositivos 
         print (f"{'\n'}-> Procesando archivos de configuración para dispositivo '{hostname}'...")
         
         # Almacenar solo los archivos de configuracion correspondientes al dispositivo
         conf_file_list = [conf_file for conf_file in config_files if conf_file.startswith(hostname)]
-        
 
         # Inicializar menu de seleccion multiple de configuración en forma de lista, permitiendo seleccionar varias configuraciones
+        print (f"-> Iniciando menu de selección de archivos de configuración a aplicar en dispositivos seleccionados...")
         terminal_menu_configs = TerminalMenu(
             menu_entries=conf_file_list,
-            title=f"  Selecciona los archivos de configuración a aplicar en el dispositivo '{hostname}'. \n  Usa Espacio para seleccionar y Enter para confirmar. \n",
+            title=f"Selecciona los archivos de configuración a aplicar en el dispositivo '{hostname}' \n ESPACIO para seleccionar \n TAB para multi-selección \n ENTER para seleccionar y confirmar \n",
             menu_cursor="> ",
             menu_cursor_style=("fg_green", "bold"),
             menu_highlight_style=("bg_green", "fg_black"),
@@ -94,8 +96,8 @@ def main():
         menu_entry_indices_configs = terminal_menu_configs.show()
         print(menu_entry_indices_configs)
         print(terminal_menu_configs.chosen_menu_entries)
-
-        for config_file in conf_file_list:
+        
+        for config_file in conf_file_list:          
             if config_file not in terminal_menu_configs.chosen_menu_entries:
                 print(f"{'->'} Config '{config_file}' no seleccionada. Saltando configuración.")
                 continue
@@ -113,7 +115,7 @@ def main():
         # Guardar configuración
         if not has_error:
             net_conf.save_configuration(connection)
-            print(f"{'->'} Configuración guardada exitosamente en dispositivo '{hostname}' en IP '{host_ip}'")
+            print(f"{'->'} Configuración guardada exitosamente en dispositivo '{hostname}' en IP '{host}'")
         end_time = datetime.now()
 
         # Calcular e imprimir duración de configuración del dispositivo
@@ -122,7 +124,7 @@ def main():
 
         # Desconectar del dispositivo
         net_conf.disconnect_device(connection)
-        print(f"{'->'} Desconectado del dispositivo '{hostname}' en IP '{host_ip}'")
+        print(f"{'->'} Desconectado del dispositivo '{hostname}' en IP '{host}'")
     
     # Imprimir duración total de configuración
     end_total_configuration_duration = datetime.now()
