@@ -28,11 +28,6 @@ Este proyecto implementa una solución avanzada de automatización de red basado
 - **Netmiko**: Biblioteca de Python que simplifica la automatización de la gestión de dispositivos de red
 - **simple-term-menu**: Biblioteca de Python que permite crear menús interactivos para programas de línea de comandos
 
-## Proyecto basado en el código de las clases del curso de NA1
-
-Consultar el siguiente enlace para mayor información:
-https://github.com/escrimaglia/UTN-IaC/tree/main/Netmiko/sim_caso
-
 ## Topología de red
 
 ![Topología de red lab1](/media/lab1.png)
