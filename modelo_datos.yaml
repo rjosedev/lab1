@@ -1,0 +1,403 @@
+modelo:
+  metadata:
+    version: "1.0"
+    project: "Simulacro de Caso de Uso"
+    description: "Modelo de datos para la gestión de infraestructura de red"
+    author: "Equipo de Desarrollo"
+    date: "2024-10-23"
+  vars:
+    username: &username "utnfrc"
+    password: &password "Mypass123!"
+    sn_24: &sn_24 "255.255.255.0"
+    sn_vl10: &sn_vl10 "172.16.10"
+    sn_vl20: &sn_vl20 "172.16.20"
+    sn_vl30: &sn_vl30 "172.16.30"
+    sn_vl40: &sn_vl40 "172.31.40"
+    sn_vl50: &sn_vl50 "10.0.50"
+    fst_ip: &fst_ip ".1"
+    snd_ip: &snd_ip ".2"
+    lst_ip: &lst_ip ".254"
+    common_config: &common_config
+      ip_server1: "10.0.50.10"
+      ip_server2: "10.0.50.11"
+      snmp_community: "c0mun1d4d"
+    vlans: &sw_vlans
+          # - id: 1
+          #   name: default
+          #   status: shutdown
+          - id: 10
+            name: "VLAN10_Engineering"
+          - id: 20
+            name: "VLAN20_Accounting"
+          - id: 30
+            name: "VLAN30_Production"
+          - id: 40
+            name: "VLAN40_DevOps"
+          - id: 50
+            name: "VLAN50_Services"
+          - id: 999
+            name: "VLAN999_Native"
+
+  # Modelo de datos para la gestión de infraestructura de red
+  infra_spec:
+    # Devices inventory
+    devices:
+      ### SW_CORE_01 ###
+      - hostname: "SW_CORE_1"
+        role: "Core Switch L3"
+        location: "Legacy Data Center"
+        ip_routing: true
+        mgmt_ip: "192.168.100.201"
+        # mgmt_int: GigabitEthernet0/0
+        # Device connection parameters
+        connection:
+          device_type: "cisco_ios"
+          host: "192.168.100.201"
+          username: *username
+          password: *password
+          global_delay_factor: 1
+          # ssh_config_file: ~/.ssh/config
+        common_config: *common_config
+        # VLANs database inventory
+        vlans: *sw_vlans
+        # Per VLAN Spanning Tree Protocol configurations
+        pvst:
+          - mode: "rapid-pvst"
+            rt_pri: "10,30,50"
+            rt_sec: "20,40"
+        # Interfaces configurations
+        interfaces:
+          # Management interface
+          - name: "GigabitEthernet0/0"
+            ip_address: "192.168.100.201"
+            subnet_mask: *sn_24
+            int_mgmt: &int_mgmt
+              description: "### Link to Cloud0 - Mgmt/OOB ###"
+          # Trunk interfaces
+          - name: "GigabitEthernet0/1"
+            description: "### Link to SW_BLD_A - Trunk ###"
+            int_trunk: &int_trunk
+              allowed_vlan: "10,20,30,40,50,999"
+              mode: "trunk"
+              native: "1"
+            dynamic: "auto"
+          - name: "GigabitEthernet0/2"
+            description: "### Link to SW_BLD_B - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "auto"
+          - name: "GigabitEthernet0/3"
+            description: "### Link to SW_DC_1 - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "auto"
+          - name: "GigabitEthernet1/0"
+            description: "### Link 1 to SW_CORE_02 - LACP - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "auto"
+            channel_config: &channel_config
+              channel_group: 1
+              channel_mode: "active"
+          - name: "GigabitEthernet1/1"
+            description: "### Link 2 to SW_CORE_02 - LACP - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "auto"
+            channel_config: *channel_config
+          # Port-Channel interfaces
+          - name: "Port-Channel1"
+            description: "### Port-Channel 1 (GE1/0 - GE0/0) to SW_CORE_02 - LACP - Trunk ###"
+            int_trunk: *int_trunk
+            int_portchannel: &int_portchannel
+              port_channel: 1
+            dynamic: "auto"
+            link_agg: &link_agg
+              mode: LACP
+              group_id: 100
+              members:
+                - GigabitEthernet1/0
+                - GigabitEthernet1/1
+              aggregation_status: "active"
+          # SVI interfaces for VLANs routing configured with HSRP and Load Balancing
+          - name: "vlan 10"
+            vlan: 10
+            ip_address: *sn_vl10
+            fst_ip: *fst_ip
+            subnet_mask: *sn_24
+            description: "### SVI interface for VLAN10_Engineering ###"
+            glbp_priority: 110
+            glbp_vip: *lst_ip
+          - name: "vlan 20"
+            vlan: 20
+            ip_address: *sn_vl20
+            fst_ip: *fst_ip
+            subnet_mask: *sn_24
+            description: "### SVI interface for VLAN20_Accounting ###"
+            glbp_priority: 111
+            glbp_vip: *lst_ip
+          - name: "vlan 30"
+            vlan: 30
+            ip_address: *sn_vl30
+            fst_ip: *fst_ip
+            subnet_mask: *sn_24
+            description: "### SVI interface for VLAN30_Production ###"
+            glbp_priority: 110
+            glbp_vip: *lst_ip
+          - name: "vlan 40"
+            vlan: 40
+            ip_address: *sn_vl40
+            fst_ip: *fst_ip
+            subnet_mask: *sn_24
+            description: "### SVI interface for VLAN40_DevOps ###"
+            glbp_priority: 111
+            glbp_vip: *lst_ip
+          - name: "vlan 50"
+            vlan: 50
+            ip_address: *sn_vl50
+            fst_ip: *fst_ip
+            subnet_mask: *sn_24
+            description: "### SVI interface for VLAN50_Services ###"
+            glbp_priority: 110
+            glbp_vip: *lst_ip
+        # Configuration generation specifications for CORE switches (using templates)
+        config_spec: &sw_config_spec
+          - type: "vlans"
+            data_path: "vlans"
+            template: "vlans.j2"
+            config_file: "vlan.cfg"
+          - type: "pvst"
+            data_path: "pvst"
+            template: "pvst.j2"
+            config_file: "pvst.cfg"
+          - type: "interfaces_trunk"
+            data_path: "interfaces"
+            template: "int_trunk.j2"
+            config_file: "int_trunk.cfg"
+          - type: "interfaces_access"
+            data_path: "interfaces"
+            template: "int_access.j2"
+            config_file: "int_access.cfg"
+          - type: "interfaces_mgmt"
+            data_path: "interfaces"
+            template: "int_mgmt.j2"
+            config_file: "int_mgmt.cfg"
+          - type: "interfaces_vlan"
+            data_path: "interfaces"
+            template: "int_vlan.j2"
+            config_file: "int_vlan.cfg"
+          - type: "interfaces_portchannel"
+            data_path: "interfaces"
+            template: "int_portchannel.j2"
+            config_file: "int_portchannel.cfg"
+      ### EOF SW_CORE_01 ###
+
+      ### SW_CORE_02 ###
+      - hostname: "SW_CORE_2"
+        mgmt_ip: "192.168.100.202"
+        role: "Core Switch L3"
+        location: "Legacy Data Center"
+        ip_routing: true
+        connection:
+          device_type: "cisco_ios"
+          host: "192.168.100.202"
+          username: *username
+          password: *password
+          global_delay_factor: 1
+          # ssh_config_file: ~/.ssh/config
+        vlans: *sw_vlans
+        pvst:
+          - mode: "rapid-pvst"
+            rt_pri: "20,40"
+            rt_sec: "10,30,50"
+        interfaces:
+          - name: "GigabitEthernet0/0"
+            ip_address: "192.168.100.202"
+            subnet_mask: *sn_24
+            int_mgmt: *int_mgmt
+          - name: "GigabitEthernet0/1"
+            description: "### Link to SW_BLD_A - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "desirable"
+          - name: "GigabitEthernet0/2"
+            description: "### Link to SW_BLD_B - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "desirable"
+          - name: "GigabitEthernet0/3"
+            description: "### Link to SW_DC_1 - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "desirable"
+          - name: "GigabitEthernet1/0"
+            description: "### Link 1 to SW_CORE_01 - LACP - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "auto"
+            channel_config: *channel_config
+          - name: "GigabitEthernet1/1"
+            description: "### Link 2 to SW_CORE_01 - LACP - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "auto"
+            channel_config: *channel_config
+          - name: "Port-Channel1"
+            description: "### Port-Channel 1 (GE1/0 - GE0/0) to SW_CORE_01 - LACP - Trunk ###"
+            int_trunk: *int_trunk
+            int_portchannel: *int_portchannel
+            dynamic: "desirable"
+            link_agg: *link_agg
+          - name: "vlan 10"
+            vlan: 10
+            ip_address: *sn_vl10
+            snd_ip: *snd_ip
+            subnet_mask: *sn_24
+            description: "### SVI interface for VLAN10_Engineering ###"
+            glbp_priority: 111
+            glbp_vip: *lst_ip
+          - name: "vlan 20"
+            vlan: 20
+            ip_address: *sn_vl20
+            snd_ip: *snd_ip
+            subnet_mask: *sn_24
+            description: "### SVI interface for VLAN20_Accounting ###"
+            glbp_priority: 110
+            glbp_vip: *lst_ip
+          - name: "vlan 30"
+            vlan: 30
+            ip_address: *sn_vl30
+            snd_ip: *snd_ip
+            subnet_mask: *sn_24
+            description: "### SVI interface for VLAN30_Production ###"
+            glbp_priority: 111
+            glbp_vip: *lst_ip
+          - name: "vlan 40"
+            vlan: 40
+            ip_address: *sn_vl40
+            snd_ip: *snd_ip
+            subnet_mask: *sn_24
+            description: "### SVI interface for VLAN40_DevOps ###"
+            glbp_priority: 110
+            glbp_vip: *lst_ip
+          - name: "vlan 50"
+            vlan: 50
+            ip_address: *sn_vl50
+            snd_ip: *snd_ip
+            subnet_mask: *sn_24
+            description: "### SVI interface for VLAN50_Services ###"
+            glbp_priority: 111
+            glbp_vip: *lst_ip
+        config_spec: *sw_config_spec
+      ### EOF SW_CORE_02 ###
+
+      ### SW_BLD_A ###
+      - hostname: "SW_BLD_A"
+        mgmt_ip: "192.168.100.203"
+        role: "Access Switch L2"
+        location: "Building A"
+        ip_routing: false
+        connection:
+          device_type: "cisco_ios"
+          host: "192.168.100.203"
+          username: *username
+          password: *password
+          global_delay_factor: 1
+          # ssh_config_file: ~/.ssh/config
+        vlans: *sw_vlans
+        pvst:
+          - mode: "rapid-pvst"
+        interfaces:
+          - name: "GigabitEthernet0/0"
+            ip_address: "192.168.100.203"
+            subnet_mask: *sn_24
+            description: "### Link to Cloud0 - Mgmt/OOB ###"
+            int_mgmt: *int_mgmt
+          - name: "GigabitEthernet0/1"
+            description: "### Link to SW_CORE_01 - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "desirable"
+          - name: "GigabitEthernet0/2"
+            description: "### Link to SW_CORE_02 - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "desirable"
+          - name: "GigabitEthernet1/0"
+            description: "### Link to PC of VLAN10_Engineering - Access ###"
+            int_access: &int_access
+              mode: "access"
+            access_vlan: 10
+          - name: "GigabitEthernet1/1"
+            description: "### Link to PC of VLAN20_Accounting - Access ###"
+            int_access: *int_access
+            access_vlan: 20
+        config_spec: *sw_config_spec
+      ### EOF SW_BLD_A ###
+
+      ### SW_BLD_B ###
+      - hostname: "SW_BLD_B"
+        mgmt_ip: "192.168.100.204"
+        role: "Access Switch L2"
+        location: "Building B"
+        ip_routing: false
+        connection:
+          device_type: "cisco_ios"
+          host: "192.168.100.204"
+          username: *username
+          password: *password
+          global_delay_factor: 1
+          # ssh_config_file: ~/.ssh/config
+        vlans: *sw_vlans
+        pvst:
+          - mode: "rapid-pvst"
+        interfaces:
+          - name: "GigabitEthernet0/0"
+            ip_address: "192.168.100.204"
+            subnet_mask: *sn_24
+            description: "### Link to Cloud0 - Mgmt/OOB ###"
+            int_mgmt: *int_mgmt
+          - name: "GigabitEthernet0/1"
+            description: "### Link to SW_CORE_01 - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "desirable"
+          - name: "GigabitEthernet0/2"
+            description: "### Link to SW_CORE_02 - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "desirable"
+          - name: "GigabitEthernet1/0"
+            description: "### Link to PC of VLAN30_Production - Access ###"
+            int_access: *int_access
+            access_vlan: 30
+          - name: "GigabitEthernet1/1"
+            description: "### Link to PC of VLAN40_DevOps - Access ###"
+            int_access: *int_access
+            access_vlan: 40
+        config_spec: *sw_config_spec
+      ### EOF SW_BLD_B ###
+
+      ### SW_DC_1 ###
+      - hostname: "SW_DC_1"
+        mgmt_ip: "192.168.100.205"
+        role: "Access Switch L2" # Aggregation Switch L2
+        location: "Data Center"
+        ip_routing: false
+        connection:
+          device_type: "cisco_ios"
+          host: "192.168.100.205"
+          username: *username
+          password: *password
+          global_delay_factor: 1
+          # ssh_config_file: ~/.ssh/config
+        vlans: *sw_vlans
+        pvst:
+          - mode: "rapid-pvst"
+        interfaces:
+          - name: "GigabitEthernet0/0"
+            ip_address: "192.168.100.205"
+            subnet_mask: *sn_24
+            description: "### Link to Cloud0 - Mgmt/OOB ###"
+            int_mgmt: *int_mgmt
+          - name: "GigabitEthernet0/1"
+            description: "### Link to SW_CORE_01 - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "desirable"
+          - name: "GigabitEthernet0/2"
+            description: "### Link to SW_CORE_02 - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "desirable"
+          - name: "GigabitEthernet1/0"
+            description: "### Link to PC of VLAN50_Services - Access ###"
+            int_access: *int_access
+            access_vlan: 50
+        config_spec: *sw_config_spec
+      ### EOF SW_DC_1 ###

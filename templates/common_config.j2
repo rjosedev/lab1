@@ -1,0 +1,22 @@
+{#-Common Configuration Template #}
+!
+{% for common in common_config -%}
+  dns server {{ common_config.ip_server1 }}
+  dns server {{ common_config.ip_server2 }}
+!
+  ntp server {{ common_config.ip_server1 }}
+  ntp server {{ common_config.ip_server2 }}
+!
+  logging trap informational
+  logging facility local7
+  logging source-interface Vlan1
+  logging host {{ common_config.ip_server1 }}
+  logging host {{ common_config.ip_server2 }}
+!
+  snmp-server enable traps
+  snmp-server location DataCenter1
+  snmp-server contact soporte@mydomain.com
+  snmp-server community {{ common_config.snmp_community }} RO
+  snmp-server host {{ common_config.ip_server1 }} version 2c {{ common_config.snmp_community }}
+!
+{% endfor -%}

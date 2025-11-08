@@ -1,0 +1,14 @@
+{# Interface Port Channel Configuration Template #}
+!
+{% for interface in interfaces -%}
+{% if interface.int_portchannel -%}
+interface {{ interface.name }}
+  description {{ interface.description }}
+  switchport trunk allowed vlan {{ interface.int_trunk.allowed_vlan }}
+  switchport trunk native vlan {{ interface.int_trunk.native }}
+  switchport mode dynamic {{ interface.dynamic }}
+  no ip address
+  no shutdown
+!
+{% endif -%}
+{% endfor -%}

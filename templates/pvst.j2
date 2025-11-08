@@ -1,0 +1,15 @@
+{#-Spanning Tree Configuration Template #}
+!
+{% for pvst in pvst -%}
+{% if pvst.mode -%}
+  spanning-tree mode {{ pvst.mode }}
+  spanning-tree portfast edge default
+  spanning-tree portfast edge bpduguard default
+{% endif -%}
+!
+{%- if pvst.rt_pri %}
+  spanning-tree vlan {{ pvst.rt_pri }} root primary
+  spanning-tree vlan {{ pvst.rt_sec }} root secondary
+!
+{% endif -%}
+{% endfor -%}

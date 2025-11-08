@@ -1,0 +1,13 @@
+{# Interface Access Configuration Template #}
+!
+{% for interface in interfaces -%}
+{% if interface.int_access -%}
+interface {{ interface.name }}
+  description {{ interface.description }}
+  switchport mode {{ interface.int_access.mode }}
+  switchport access vlan {{ interface.access_vlan }}
+  spanning-tree portfast
+  no shutdown
+!
+{% endif -%}
+{% endfor -%}

@@ -1,0 +1,21 @@
+{#-Interface VLAN Configuration Template #}
+!
+{% for interface in interfaces -%}
+{%- if interface.vlan -%}
+interface vlan {{ interface.vlan }}
+{%- if interface.fst_ip %}
+  ip address {{ interface.ip_address }}{{ interface.fst_ip }} {{ interface.subnet_mask }}
+{%- else %}
+  ip address {{ interface.ip_address }}{{ interface.snd_ip }} {{ interface.subnet_mask }}
+{%- endif %}
+  description {{ interface.description }}
+  glbp {{ interface.vlan }} priority {{ interface.glbp_priority }}
+{%- if interface.glbp_priority == 110 %}
+  glbp {{ interface.vlan }} preempt
+{%- endif %}
+  glbp {{ interface.vlan }} authentication md5 key-string s!a863
+  glbp {{ interface.vlan }} ip {{ interface.ip_address }}{{ interface.glbp_vip }}
+  no shutdown
+!
+{% endif -%}
+{% endfor -%}

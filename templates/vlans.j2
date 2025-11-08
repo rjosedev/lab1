@@ -1,0 +1,8 @@
+{#- VLANs Configuration Template -#}
+!
+{% for vlan in vlans -%}
+vlan {{ vlan.id }}
+  name {{ vlan.name }}
+  no shutdown
+!
+{% endfor -%}

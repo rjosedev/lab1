@@ -1,0 +1,18 @@
+{# Interface Trunk Configuration Template #}
+!
+{% for interface in interfaces -%}
+{% if interface.int_trunk -%}
+interface {{ interface.name }}
+  description {{ interface.description }}
+  switchport {{ interface.int_trunk.mode }} encapsulation dot1q
+  switchport trunk allowed vlan {{ interface.int_trunk.allowed_vlan }}
+  switchport trunk native vlan {{ interface.int_trunk.native }}
+  switchport mode dynamic {{ interface.dynamic }}
+{%- if interface.channel_config %}
+  channel-group {{ interface.channel_config.channel_group }} mode {{ interface.channel_config.channel_mode }}
+{%- endif %}
+  no ip address
+  no shutdown
+!
+{% endif -%}
+{% endfor -%}

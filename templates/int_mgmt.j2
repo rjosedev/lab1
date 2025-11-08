@@ -1,0 +1,12 @@
+{# Interface Mgmt Configuration Template #}
+!
+{% for interface in interfaces -%}
+{% if interface.int_mgmt -%}
+interface {{ interface.name }}
+  ip address {{ interface.ip_address }} {{ interface.subnet_mask }}
+  description {{ interface.int_mgmt.description }}
+  no switchport
+  no shutdown
+!
+{% endif -%}
+{% endfor -%}
