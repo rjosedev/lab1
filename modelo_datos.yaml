@@ -61,14 +61,7 @@ modelo:
       native: "99"
     int_portchannel: &int_portchannel
       port_channel: 1
-    link_agg: &link_agg
-      mode: LACP
-      group_id: 100
-      members:
-        - GigabitEthernet1/0
-        - GigabitEthernet1/1
-      aggregation_status: "active"
-    config_spec: &sw_config_spec
+    config_spec: &config_spec
       - type: "vlans"
         data_path: "vlans"
         template: "vlans.j2"
@@ -81,18 +74,14 @@ modelo:
         data_path: "services_config"
         template: "services_config.j2"
         config_file: "services_config.cfg"
-      - type: "interfaces_trunk"
-        data_path: "interfaces"
-        template: "int_trunk.j2"
-        config_file: "int_trunk.cfg"
-      - type: "interfaces_access"
-        data_path: "interfaces"
-        template: "int_access.j2"
-        config_file: "int_access.cfg"
       - type: "interfaces_mgmt"
         data_path: "interfaces"
         template: "int_mgmt.j2"
         config_file: "int_mgmt.cfg"
+      - type: "interfaces_trunk"
+        data_path: "interfaces"
+        template: "int_trunk.j2"
+        config_file: "int_trunk.cfg"
       - type: "interfaces_vlan"
         data_path: "interfaces"
         template: "int_vlan.j2"
@@ -101,6 +90,10 @@ modelo:
         data_path: "interfaces"
         template: "int_portchannel.j2"
         config_file: "int_portchannel.cfg"
+      - type: "interfaces_access"
+        data_path: "interfaces"
+        template: "int_access.j2"
+        config_file: "int_access.cfg"
 
   # Modelo de datos para la gestión de infraestructura de red
   infra_spec:
@@ -163,7 +156,6 @@ modelo:
             int_trunk: *int_trunk
             int_portchannel: *int_portchannel
             dynamic: "auto"
-            link_agg: *link_agg
           # SVI interfaces for VLANs routing configured with GLBP for Load Balancing
           - name: "vlan 10"
             vlan: 10
@@ -214,7 +206,7 @@ modelo:
             glbp_priority: 111
             glbp_vip: *lst_ip
         # Configuration generation specifications for CORE switches (using templates)
-        config_spec: *sw_config_spec
+        config_spec: *config_spec
       ### EOF SW_CORE_01 ###
 
       ### SW_CORE_02 ###
@@ -263,7 +255,6 @@ modelo:
             int_trunk: *int_trunk
             int_portchannel: *int_portchannel
             dynamic: "desirable"
-            link_agg: *link_agg
           - name: "vlan 10"
             vlan: 10
             ip_address: *sn_vl10
@@ -312,7 +303,7 @@ modelo:
             description: "### SVI interface for VLAN60_Services2 ###"
             glbp_priority: 110
             glbp_vip: *lst_ip
-        config_spec: *sw_config_spec
+        config_spec: *config_spec
       ### EOF SW_CORE_02 ###
 
       ### SW_BLD_A ###
@@ -350,7 +341,7 @@ modelo:
             description: "### Link to PC of VLAN20_Accounting - Access ###"
             int_access: *int_access
             access_vlan: 20
-        config_spec: *sw_config_spec
+        config_spec: *config_spec
       ### EOF SW_BLD_A ###
 
       ### SW_BLD_B ###
@@ -387,7 +378,7 @@ modelo:
             description: "### Link to PC of VLAN40_DevOps - Access ###"
             int_access: *int_access
             access_vlan: 40
-        config_spec: *sw_config_spec
+        config_spec: *config_spec
       ### EOF SW_BLD_B ###
 
       ### SW_DC_1 ###
@@ -424,5 +415,5 @@ modelo:
             description: "### Link to Server2 of VLAN60_Services2 - Access ###"
             int_access: *int_access
             access_vlan: 60
-        config_spec: *sw_config_spec
+        config_spec: *config_spec
       ### EOF SW_DC_1 ###
