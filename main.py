@@ -13,24 +13,45 @@ def main():
     # Leer archivo modelo de datos
     dic_modelo = create_config.read_yaml("modelo_datos.yaml")
     print (json.dumps(dic_modelo, indent=4))
+    print(f"{'\n'}-> Archivo modelo de datos leído exitosamente.")
+    print(f"-> Modelo de datos contiene {len(dic_modelo.get('modelo').get('infra_spec').get('devices'))} dispositivos: {[device.get('hostname') for device in dic_modelo.get('modelo').get('infra_spec').get('devices')]}")
     input("Presionar ENTER para continuar...")
 
-    # Inicializar menu de seleccion multiple de dispositivos en forma de lista, permitiendo seleccionar varios dispositivos
-    print (f"-> Iniciando menu de selección de dispositivos utilizando librería simple-term-menu...")
+    # Prompt con 2 opciones: aplicar configuraciones a todos los dispositivos o seleccionar dispositivos
     terminal_menu = TerminalMenu(
-        menu_entries=[device.get('hostname') for device in dic_modelo.get("modelo").get("infra_spec").get("devices")],
-        title="Selecciona los dispositivos a configurar. \n ESPACIO para seleccionar \n TAB para multi-selección \n ENTER para seleccionar y confirmar \n",
+        menu_entries=["Aplicar configuraciones a todos los dispositivos del modelo",
+                      "Seleccionar dispositivos específicos para aplicar configuraciones"],
+        title="Selecciona el modo de aplicación de configuraciones",
         menu_cursor="> ",
         menu_cursor_style=("fg_green", "bold"),
         menu_highlight_style=("bg_green", "fg_black"),
         cycle_cursor=True,
         clear_screen=True,
-        multi_select=True,
-        show_multi_select_hint=True,
     )
-    menu_entry_indices = terminal_menu.show()
-    print(menu_entry_indices)
-    print(terminal_menu.chosen_menu_entries)
+    menu_entry_index_mode = terminal_menu.show()
+    print(menu_entry_index_mode)
+
+    if menu_entry_index_mode == 0:
+        # Seleccionar todos los dispositivos
+        selected_devices = [device.get('hostname') for device in dic_modelo.get("modelo").get("infra_spec").get("devices")]
+        print(f"-> Aplicar configuraciones a todos los dispositivos: {selected_devices}")
+        input("Presionar ENTER para continuar...")
+    else:
+        # Menu de seleccion multiple de dispositivos en forma de lista, permitiendo seleccionar varios dispositivos
+        terminal_menu = TerminalMenu(
+            menu_entries=[device.get('hostname') for device in dic_modelo.get("modelo").get("infra_spec").get("devices")],
+            title="-> Selecciona los dispositivos a configurar",
+            menu_cursor="> ",
+            menu_cursor_style=("fg_green", "bold"),
+            menu_highlight_style=("bg_green", "fg_black"),
+            cycle_cursor=True,
+            clear_screen=True,
+            multi_select=True,
+            show_multi_select_hint=True,
+        )
+        menu_entry_index_mode = terminal_menu.show()
+        print(menu_entry_index_mode)
+        print(terminal_menu.chosen_menu_entries)
 
     # Generar archivos de configuracion por dispositivo
     print (f"{'\n'}-> Generando archivos de configuración...")
@@ -59,11 +80,17 @@ def main():
     # [os.system("cat ./configs/" + f) for f in sorted(config_files) if f.endswith(".cfg")]
 
     # Conectar y configurar cada dispositivo seleccionado
-    print (f"{'\n'}-> Conectando a dispositivos seleccionados '{terminal_menu.chosen_menu_entries}' y aplicando configuraciones...")
+    if terminal_menu.chosen_menu_entries == None:
+        print(f"{'\n'}-> Conectando a todos los dispositivos '{selected_devices}' y aplicando configuraciones...")
+    else:
+        print (f"{'\n'}-> Conectando a dispositivos seleccionados '{terminal_menu.chosen_menu_entries}' y aplicando configuraciones...")
+    
     start_total_configuration_duration = datetime.now()
     start_time = datetime.now()
     for device in dic_modelo.get("modelo").get("infra_spec").get("devices"):
-        if device.get('hostname') not in terminal_menu.chosen_menu_entries:
+        if terminal_menu.chosen_menu_entries == None:
+            pass
+        elif device.get('hostname') not in terminal_menu.chosen_menu_entries:
             print(f"{'->'} Dispositivo '{device.get('hostname')}' no seleccionado. Saltando configuración.")
             continue
         ssh_connect_params = device.get("ssh_connect")
@@ -84,7 +111,7 @@ def main():
         print (f"-> Iniciando menu de selección de archivos de configuración a aplicar en dispositivos seleccionados...")
         terminal_menu_configs = TerminalMenu(
             menu_entries=conf_file_list,
-            title=f"Selecciona los archivos de configuración a aplicar en el dispositivo '{hostname}' \n ESPACIO para seleccionar \n TAB para multi-selección \n ENTER para seleccionar y confirmar \n",
+            title=f"Selecciona los archivos de configuración a aplicar en el dispositivo '{hostname}'",
             menu_cursor="> ",
             menu_cursor_style=("fg_green", "bold"),
             menu_highlight_style=("bg_green", "fg_black"),
