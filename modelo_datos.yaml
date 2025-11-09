@@ -24,7 +24,7 @@ modelo:
     snd_ip: &snd_ip ".2"
     lst_ip: &lst_ip ".254"
     services_config: &services_config
-      source_interface: "Vlan99"
+      source_interface: "Vlan5"
       dns_server:
         ip_server1: "10.0.50.10"
         ip_server2: "10.0.60.10"
@@ -41,6 +41,8 @@ modelo:
       # - id: 1
       #   name: default
       #   status: shutdown
+      - id: 5
+        name: "VLAN05_Mgmt/OOB"
       - id: 10
         name: "VLAN10_Engineering"
       - id: 20
@@ -56,7 +58,7 @@ modelo:
       - id: 99
         name: "VLAN99_Native"
     int_trunk: &int_trunk
-      allowed_vlan: "10,20,30,40,50,60,99"
+      allowed_vlan: "5,10,20,30,40,50,60,99"
       mode: "trunk"
       native: "99"
     int_portchannel: &int_portchannel
@@ -115,7 +117,7 @@ modelo:
         # Per VLAN Spanning Tree Protocol configurations
         pvst:
           - mode: "rapid-pvst"
-            rt_pri: "10,30,50"
+            rt_pri: "5,10,30,50"
             rt_sec: "20,40,60"
         # Interfaces configurations
         interfaces:
@@ -222,7 +224,7 @@ modelo:
         pvst:
           - mode: "rapid-pvst"
             rt_pri: "20,40,60"
-            rt_sec: "10,30,50"
+            rt_sec: "5,10,30,50"
         interfaces:
           - name: "GigabitEthernet0/0"
             ip_address: "192.168.100.202"
