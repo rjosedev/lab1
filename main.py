@@ -126,18 +126,18 @@ def main():
         
         for config_file in conf_file_list:          
             if config_file not in terminal_menu_configs.chosen_menu_entries:
-                print(f"{'->'} Config '{config_file}' no seleccionada. Saltando configuración.")
+                print(f"-> Config '{config_file}' no seleccionada. Saltando configuración.")
                 continue
-            print(f"Aplicando configuración seleccionada desde '{config_file}' para dispositivo '{hostname}'")
+            print(f"-> Aplicando configuración seleccionada desde '{config_file}' para dispositivo '{hostname}'")
             output = net_conf.send_config_commands(connection=connection, config_file=config_file)
             
             # Verificar errores en la salida
             has_error = net_conf.check_output_error(output)
             if has_error:
-                print(f"Errores encontrados en configuración para '{device.get('hostname')}'. Abortando configuraciones adicionales.")
+                print(f"-> Errores encontrados en configuración para '{device.get('hostname')}'. Abortando configuraciones adicionales.")
                 break
             else:
-                print(f"Configuración desde '{config_file}' aplicada exitosamente al dispositivo '{hostname}'")
+                print(f"-> Configuración desde '{config_file}' aplicada exitosamente al dispositivo '{hostname}'")
 
         # Guardar configuración
         if not has_error:

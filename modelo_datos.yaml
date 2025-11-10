@@ -57,8 +57,12 @@ modelo:
         name: "VLAN60_Services2"
       - id: 99
         name: "VLAN99_Native"
+    int_mgmt: &int_mgmt
+      description: "### Link to SW_MGMT_OOB_1 - Uplinks to Internet (Cloud0) - Mgmt/OOB ###"
+    int_access: &int_access
+      mode: "access"
     int_trunk: &int_trunk
-      allowed_vlan: "5,10,20,30,40,50,60,99"
+      allowed_vlan: "10,20,30,40,50,60,99"
       mode: "trunk"
       native: "99"
     int_portchannel: &int_portchannel
@@ -110,14 +114,14 @@ modelo:
         # Device ssh_connect parameters
         ssh_connect: 
           <<: *ssh_connect
-          host: "192.168.100.201"
+          host: "172.16.5.101"
         services_config: *services_config
         # VLANs database inventory
         vlans: *sw_vlans
         # Per VLAN Spanning Tree Protocol configurations
         pvst:
           - mode: "rapid-pvst"
-            rt_pri: "5,10,30,50"
+            rt_pri: "10,30,50"
             rt_sec: "20,40,60"
         # Interfaces configurations
         interfaces:
@@ -125,8 +129,7 @@ modelo:
           - name: "GigabitEthernet0/0"
             ip_address: "192.168.100.201"
             subnet_mask: *sn_24
-            int_mgmt: &int_mgmt
-              description: "### Link to Cloud0 - Mgmt/OOB ###"
+            int_mgmt: *int_mgmt
           # Trunk interfaces
           - name: "GigabitEthernet0/1"
             description: "### Link to SW_BLD_A - Trunk ###"
@@ -152,6 +155,12 @@ modelo:
             int_trunk: *int_trunk
             dynamic: "auto"
             channel_config: *channel_config
+          - name: "GigabitEthernet1/3"
+            ip_address: "172.16.5.101"
+            subnet_mask: *sn_24
+            int_mgmt: 
+              <<: *int_mgmt
+              description: "### Link to SW_MGMT_OOB_2 - Uplinks to NetCloud 1 - Mgmt/OOB ###"
           # Port-Channel interfaces
           - name: "Port-Channel1"
             description: "### Port-Channel 1 (GE1/0 - GE0/0) to SW_CORE_02 - LACP - Trunk ###"
@@ -159,6 +168,11 @@ modelo:
             int_portchannel: *int_portchannel
             dynamic: "auto"
           # SVI interfaces for VLANs routing configured with GLBP for Load Balancing
+          - name: "vlan 5"
+            vlan: 5
+            ip_address: ""
+            subnet_mask: ""
+            description: "### SVI interface for VLAN05_Mgmt/OOB ###"
           - name: "vlan 10"
             vlan: 10
             ip_address: *sn_vl10
@@ -218,13 +232,13 @@ modelo:
         ip_routing: true
         ssh_connect: 
           <<: *ssh_connect
-          host: "192.168.100.202"
+          host: "172.16.5.102"
         services_config: *services_config
         vlans: *sw_vlans
         pvst:
           - mode: "rapid-pvst"
             rt_pri: "20,40,60"
-            rt_sec: "5,10,30,50"
+            rt_sec: "10,30,50"
         interfaces:
           - name: "GigabitEthernet0/0"
             ip_address: "192.168.100.202"
@@ -252,11 +266,22 @@ modelo:
             int_trunk: *int_trunk
             dynamic: "auto"
             channel_config: *channel_config
+          - name: "GigabitEthernet1/3"
+            ip_address: "172.16.5.102"
+            subnet_mask: *sn_24
+            int_mgmt: 
+              <<: *int_mgmt
+              description: "### Link to SW_MGMT_OOB_2 - Uplinks to NetCloud 1 - Mgmt/OOB ###"
           - name: "Port-Channel1"
             description: "### Port-Channel 1 (GE1/0 - GE0/0) to SW_CORE_01 - LACP - Trunk ###"
             int_trunk: *int_trunk
             int_portchannel: *int_portchannel
             dynamic: "desirable"
+          - name: "vlan 5"
+            vlan: 5
+            ip_address: ""
+            subnet_mask: ""
+            description: "### SVI interface for VLAN05_Mgmt/OOB ###"
           - name: "vlan 10"
             vlan: 10
             ip_address: *sn_vl10
@@ -315,7 +340,7 @@ modelo:
         ip_routing: false
         ssh_connect: 
           <<: *ssh_connect
-          host: "192.168.100.203"
+          host: "172.16.5.103"
         services_config: *services_config
         vlans: *sw_vlans
         pvst:
@@ -335,14 +360,24 @@ modelo:
             int_trunk: *int_trunk
             dynamic: "desirable"
           - name: "GigabitEthernet1/0"
-            description: "### Link to PC of VLAN10_Engineering - Access ###"
-            int_access: &int_access
-              mode: "access"
+            description: "### Link to PC on VLAN10_Engineering - Access ###"
+            int_access: *int_access
             access_vlan: 10
           - name: "GigabitEthernet1/1"
-            description: "### Link to PC of VLAN20_Accounting - Access ###"
+            description: "### Link to PC on VLAN20_Accounting - Access ###"
             int_access: *int_access
             access_vlan: 20
+          - name: "GigabitEthernet1/3"
+            ip_address: "172.16.5.103"
+            subnet_mask: *sn_24
+            int_mgmt: 
+              <<: *int_mgmt
+              description: "### Link to SW_MGMT_OOB_2 - Uplinks to NetCloud 1 - Mgmt/OOB ###"
+          - name: "vlan 5"
+            vlan: 5
+            ip_address: ""
+            subnet_mask: ""
+            description: "### SVI interface for VLAN05_Mgmt/OOB ###"
         config_spec: *config_spec
       ### EOF SW_BLD_A ###
 
@@ -353,7 +388,7 @@ modelo:
         ip_routing: false
         ssh_connect: 
           <<: *ssh_connect
-          host: "192.168.100.204"
+          host: "172.16.5.104"
         services_config: *services_config
         vlans: *sw_vlans
         pvst:
@@ -373,13 +408,24 @@ modelo:
             int_trunk: *int_trunk
             dynamic: "desirable"
           - name: "GigabitEthernet1/0"
-            description: "### Link to PC of VLAN30_Production - Access ###"
+            description: "### Link to PC on VLAN30_Production - Access ###"
             int_access: *int_access
             access_vlan: 30
           - name: "GigabitEthernet1/1"
-            description: "### Link to PC of VLAN40_DevOps - Access ###"
+            description: "### Link to PC on VLAN40_DevOps - Access ###"
             int_access: *int_access
             access_vlan: 40
+          - name: "GigabitEthernet1/3"
+            ip_address: "172.16.5.104"
+            subnet_mask: *sn_24
+            int_mgmt: 
+              <<: *int_mgmt
+              description: "### Link to SW_MGMT_OOB_2 - Uplinks to NetCloud 1 - Mgmt/OOB ###"
+          - name: "vlan 5"
+            vlan: 5
+            ip_address: ""
+            subnet_mask: ""
+            description: "### SVI interface for VLAN05_Mgmt/OOB ###"
         config_spec: *config_spec
       ### EOF SW_BLD_B ###
 
@@ -390,7 +436,7 @@ modelo:
         ip_routing: false
         ssh_connect: 
           <<: *ssh_connect
-          host: "192.168.100.205"
+          host: "172.16.5.105"
         services_config: *services_config
         vlans: *sw_vlans
         pvst:
@@ -410,12 +456,23 @@ modelo:
             int_trunk: *int_trunk
             dynamic: "desirable"
           - name: "GigabitEthernet1/0"
-            description: "### Link to Server1 of VLAN50_Services1 - Access ###"
+            description: "### Link to Server1 on VLAN50_Services1 - Access ###"
             int_access: *int_access
             access_vlan: 50
           - name: "GigabitEthernet1/1"
-            description: "### Link to Server2 of VLAN60_Services2 - Access ###"
+            description: "### Link to Server2 on VLAN60_Services2 - Access ###"
             int_access: *int_access
             access_vlan: 60
+          - name: "GigabitEthernet1/3"
+            ip_address: "172.16.5.105"
+            subnet_mask: *sn_24
+            int_mgmt: 
+              <<: *int_mgmt
+              description: "### Link to SW_MGMT_OOB_2 - Uplinks to NetCloud 1 - Mgmt/OOB ###"
+          - name: "vlan 5"
+            vlan: 5
+            ip_address: ""
+            subnet_mask: ""
+            description: "### SVI interface for VLAN05_Mgmt/OOB ###"
         config_spec: *config_spec
       ### EOF SW_DC_1 ###
