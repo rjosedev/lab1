@@ -5,9 +5,7 @@
   interface vlan {{ interface.vlan }}
   description {{ interface.description }}
   no shutdown
-{%- if interface.vlan == 5 %}
-  no ip address
-{%- elif interface.fst_ip %}
+{%- if interface.fst_ip %}
   ip address {{ interface.ip_address }}{{ interface.fst_ip }} {{ interface.subnet_mask }}
 {%- elif interface.snd_ip %}
   ip address {{ interface.ip_address }}{{ interface.snd_ip }} {{ interface.subnet_mask }}
@@ -21,6 +19,11 @@
 {%- if interface.glbp_vip %}
   glbp {{ interface.vlan }} authentication md5 key-string s!a863
   glbp {{ interface.vlan }} ip {{ interface.ip_address }}{{ interface.glbp_vip }}
+{%- endif %}
+{%- if interface.vlan == 5 %}
+  ip address {{ interface.ip_address }} {{ interface.subnet_mask }}
+  exit
+ip default-gateway 172.16.5.1
 {%- endif %}
 !
 {% endif -%}

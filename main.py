@@ -152,6 +152,7 @@ def main():
         # Desconectar del dispositivo
         net_conf.disconnect_device(connection)
         print(f"{'->'} Desconectado del dispositivo '{hostname}' en IP '{host}'")
+        input("Presionar ENTER para continuar...")
     
     # Imprimir duración total de configuración
     end_total_configuration_duration = datetime.now()

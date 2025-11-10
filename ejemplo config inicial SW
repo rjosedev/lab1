@@ -1,16 +1,18 @@
-hostname name # SW_CORE_1
+hostname SW_CORE_1
 
-enable secret password # Mypass123!
-username utnfrc privilege 15 secret 5 encrypted_password
+enable secret password Mypass123!
+username utnfrc privilege 15 secret Mypass123!
 
 no ip domain lookup
 ip domain name mydomain.local
 
 crypto key generate rsa general-keys modulus 4096
 
-crypto key generate rsa modulus 4096
 crypto key generate rsa label sshkeys
 ip ssh rsa keypair-name sshkeys
+ip ssh time-out 30
+ip ssh source-interface GigabitEthernet0/0
+ip ssh version 2
 
 interface GigabitEthernet0/0
  description ### Link to Cloud0 - Mgmt/OOB ###
@@ -28,8 +30,5 @@ line vty 0 15
  login local
  transport input ssh
 
-ip ssh time-out 30
-ip ssh source-interface GigabitEthernet0/0
-ip ssh rsa keypair-name sshkeys
-ip ssh version 2
+
 
