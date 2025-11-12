@@ -107,25 +107,46 @@ def main():
         # Almacenar solo los archivos de configuracion correspondientes al dispositivo
         conf_file_list = [conf_file for conf_file in config_files if conf_file.startswith(hostname)]
 
-        # Inicializar menu de seleccion multiple de configuración en forma de lista, permitiendo seleccionar varias configuraciones
-        print (f"-> Iniciando menu de selección de archivos de configuración a aplicar en dispositivos seleccionados...")
-        terminal_menu_configs = TerminalMenu(
-            menu_entries=conf_file_list,
-            title=f"Selecciona los archivos de configuración a aplicar en el dispositivo '{hostname}'",
+        # Prompt con 2 opciones: aplicar todas las configuraciones o seleccionar configuraciones
+        terminal_menu_mode_configs = TerminalMenu(
+            menu_entries=["Aplicar todas las configuraciones disponibles para el dispositivo",
+                          "Seleccionar configuraciones específicas para aplicar en el dispositivo"],
+            title=f"Selecciona el modo de aplicación de configuraciones para el dispositivo '{hostname}'",
             menu_cursor="> ",
             menu_cursor_style=("fg_green", "bold"),
             menu_highlight_style=("bg_green", "fg_black"),
             cycle_cursor=True,
             clear_screen=True,
-            multi_select=True,
-            show_multi_select_hint=True,
         )
-        menu_entry_indices_configs = terminal_menu_configs.show()
-        print(menu_entry_indices_configs)
-        print(terminal_menu_configs.chosen_menu_entries)
+        menu_entry_index_mode_configs = terminal_menu_mode_configs.show()
+        print(menu_entry_index_mode_configs)
+
+        if menu_entry_index_mode_configs == 0:
+        # Seleccionar todas las configuraciones
+            print(f"-> Aplicar todas las configuraciones disponibles para el dispositivo '{hostname}': {conf_file_list}")
+            input("Presionar ENTER para continuar...")
+        else:
+            # Inicializar menu de seleccion multiple de configuración en forma de lista, permitiendo seleccionar varias configuraciones
+            print (f"-> Iniciando menu de selección de archivos de configuración a aplicar en dispositivos seleccionados...")
+            terminal_menu_configs = TerminalMenu(
+                menu_entries=conf_file_list,
+                title=f"Selecciona los archivos de configuración a aplicar en el dispositivo '{hostname}'",
+                menu_cursor="> ",
+                menu_cursor_style=("fg_green", "bold"),
+                menu_highlight_style=("bg_green", "fg_black"),
+                cycle_cursor=True,
+                clear_screen=True,
+                multi_select=True,
+                show_multi_select_hint=True,
+            )
+            menu_entry_indices_configs = terminal_menu_configs.show()
+            print(menu_entry_indices_configs)
+            print(terminal_menu_configs.chosen_menu_entries)
         
-        for config_file in conf_file_list:          
-            if config_file not in terminal_menu_configs.chosen_menu_entries:
+        for config_file in conf_file_list:
+            if menu_entry_index_mode_configs == 0:
+                pass
+            elif config_file not in terminal_menu_configs.chosen_menu_entries:
                 print(f"-> Config '{config_file}' no seleccionada. Saltando configuración.")
                 continue
             print(f"-> Aplicando configuración seleccionada desde '{config_file}' para dispositivo '{hostname}'")

@@ -38,9 +38,8 @@ modelo:
         ip_server1: "10.0.50.10"
         snmp_community: "utnfrc_snmp"
     vlans: &sw_vlans
-      # - id: 1
-      #   name: default
-      #   status: shutdown
+      - id: 1
+        name: "VLAN01_Default/Native"
       - id: 5
         name: "VLAN05_Mgmt/OOB"
       - id: 10
@@ -56,15 +55,15 @@ modelo:
       - id: 60
         name: "VLAN60_Services2"
       - id: 99
-        name: "VLAN99_Native"
+        name: "VLAN99_Unused/Suspended"
     int_mgmt: &int_mgmt
       description: "### Link to SW_MGMT_OOB_1 - Uplinks to Internet (Cloud0) - Mgmt/OOB ###"
     int_access: &int_access
       mode: "access"
     int_trunk: &int_trunk
-      allowed_vlan: "10,20,30,40,50,60,99"
+      allowed_vlan: "1,10,20,30,40,50,60"
       mode: "trunk"
-      native: "99"
+      native: "1"
     int_portchannel: &int_portchannel
       port_channel: 1
     config_spec: &config_spec
@@ -155,6 +154,10 @@ modelo:
             int_trunk: *int_trunk
             dynamic: "auto"
             channel_config: *channel_config
+          - name: "GigabitEthernet1/2"
+            description: "### NONE at VLAN99_Unused/Suspended ###"
+            int_access: *int_access
+            access_vlan: 99
           - name: "GigabitEthernet1/3"
             description: "### Link to SW_MGMT_OOB_2 - Uplinks to NetCloud 1 - Mgmt/OOB ###"
             int_access: *int_access
@@ -264,6 +267,10 @@ modelo:
             int_trunk: *int_trunk
             dynamic: "auto"
             channel_config: *channel_config
+          - name: "GigabitEthernet1/2"
+            description: "### NONE at VLAN99_Unused/Suspended ###"
+            int_access: *int_access
+            access_vlan: 99
           - name: "GigabitEthernet1/3"
             description: "### Link to SW_MGMT_OOB_2 - Uplinks to NetCloud 1 - Mgmt/OOB ###"
             int_access: *int_access
@@ -363,6 +370,10 @@ modelo:
             description: "### Link to PC on VLAN20_Accounting - Access ###"
             int_access: *int_access
             access_vlan: 20
+          - name: "GigabitEthernet1/2"
+            description: "### NONE at VLAN99_Unused/Suspended ###"
+            int_access: *int_access
+            access_vlan: 99
           - name: "GigabitEthernet1/3"
             description: "### Link to SW_MGMT_OOB_2 - Uplinks to NetCloud 1 - Mgmt/OOB ###"
             int_access: *int_access
@@ -409,6 +420,10 @@ modelo:
             description: "### Link to PC on VLAN40_DevOps - Access ###"
             int_access: *int_access
             access_vlan: 40
+          - name: "GigabitEthernet1/2"
+            description: "### NONE at VLAN99_Unused/Suspended ###"
+            int_access: *int_access
+            access_vlan: 99
           - name: "GigabitEthernet1/3"
             description: "### Link to SW_MGMT_OOB_2 - Uplinks to NetCloud 1 - Mgmt/OOB ###"
             int_access: *int_access
@@ -455,6 +470,10 @@ modelo:
             description: "### Link to Server2 on VLAN60_Services2 - Access ###"
             int_access: *int_access
             access_vlan: 60
+          - name: "GigabitEthernet1/2"
+            description: "### NONE at VLAN99_Unused/Suspended ###"
+            int_access: *int_access
+            access_vlan: 99
           - name: "GigabitEthernet1/3"
             description: "### Link to SW_MGMT_OOB_2 - Uplinks to NetCloud 1 - Mgmt/OOB ###"
             int_access: *int_access

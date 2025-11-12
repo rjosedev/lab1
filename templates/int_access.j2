@@ -9,6 +9,8 @@ interface {{ interface.name }}
   no shutdown
 {%- if interface.access_vlan == 5 %}
   spanning-tree bpduguard disable
+{%- elif interface.access_vlan == 99 %}
+  spanning-tree bpduguard enable
 {%- else %}
   spanning-tree portfast
 {%- endif %}

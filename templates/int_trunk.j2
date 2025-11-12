@@ -8,6 +8,7 @@ interface {{ interface.name }}
   switchport trunk allowed vlan {{ interface.int_trunk.allowed_vlan }}
   switchport trunk native vlan {{ interface.int_trunk.native }}
   switchport mode dynamic {{ interface.dynamic }}
+  spanning-tree bpduguard disable
 {%- if interface.channel_config %}
   channel-group {{ interface.channel_config.channel_group }} mode {{ interface.channel_config.channel_mode }}
 {%- endif %}
