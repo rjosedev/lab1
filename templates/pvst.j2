@@ -9,6 +9,8 @@
 !
 {%- if pvst.rt_pri %}
   spanning-tree vlan {{ pvst.rt_pri }} root primary
+{%- endif %}
+{%- if pvst.rt_sec %}
   spanning-tree vlan {{ pvst.rt_sec }} root secondary
 !
 {% endif -%}

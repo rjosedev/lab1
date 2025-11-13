@@ -7,7 +7,7 @@ vlan {{ vlan.id }}
   state suspend
   shutdown
 !
-{%- else %}
+{% else -%}
 vlan {{ vlan.id }}
   name {{ vlan.name }}
   no shutdown

@@ -6,13 +6,15 @@ interface {{ interface.name }}
   description {{ interface.description }}
   switchport mode {{ interface.int_access.mode }}
   switchport access vlan {{ interface.access_vlan }}
-  no shutdown
 {%- if interface.access_vlan == 5 %}
   spanning-tree bpduguard disable
+  no shutdown
 {%- elif interface.access_vlan == 99 %}
   spanning-tree bpduguard enable
+  shutdown
 {%- else %}
   spanning-tree portfast
+  no shutdown
 {%- endif %}
 !
 {% endif -%}

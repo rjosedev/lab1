@@ -26,16 +26,16 @@ modelo:
     services_config: &services_config
       source_interface: "Vlan5"
       dns_server:
-        ip_server1: "10.0.50.10"
-        ip_server2: "10.0.60.10"
+        ip_server1: "10.0.70.111"
+        ip_server2: "10.0.80.222"
       ntp_server:
-        ip_server1: "10.0.50.10"
-        ip_server2: "10.0.60.10"
+        ip_server1: "10.0.70.111"
+        ip_server2: "10.0.80.222"
       syslog_server:
-        ip_server1: "10.0.50.10"
-        ip_server2: "10.0.60.10"
+        ip_server1: "10.0.70.111"
+        ip_server2: "10.0.80.222"
       snmp_server:
-        ip_server1: "10.0.50.10"
+        ip_server1: "10.0.70.111"
         snmp_community: "utnfrc_snmp"
     vlans: &sw_vlans
       - id: 1
@@ -54,6 +54,10 @@ modelo:
         name: "VLAN50_Services1"
       - id: 60
         name: "VLAN60_Services2"
+      - id: 70
+        name: "VLAN70_IT1"
+      - id: 80
+        name: "VLAN80_IT2"
       - id: 99
         name: "VLAN99_Unused/Suspended"
     int_mgmt: &int_mgmt
@@ -61,7 +65,7 @@ modelo:
     int_access: &int_access
       mode: "access"
     int_trunk: &int_trunk
-      allowed_vlan: "1,10,20,30,40,50,60"
+      allowed_vlan: "1,10,20,30,40,50,60,70,80"
       mode: "trunk"
       native: "1"
     int_portchannel: &int_portchannel
@@ -104,7 +108,7 @@ modelo:
   infra_spec:
     # Devices inventory
     devices:
-      ### SW_CORE_01 ###
+      ### SW_CORE_1 ###
       - hostname: "SW_CORE_1"
         role: "Core Switch L3"
         location: "Legacy Data Center"
@@ -143,28 +147,28 @@ modelo:
             int_trunk: *int_trunk
             dynamic: "auto"
           - name: "GigabitEthernet1/0"
-            description: "### Link 1 to SW_CORE_02 - LACP - Trunk ###"
+            description: "### Link 1 to SW_CORE_2 - LACP - Trunk ###"
             int_trunk: *int_trunk
             dynamic: "auto"
             channel_config: &channel_config
               channel_group: 1
               channel_mode: "active"
           - name: "GigabitEthernet1/1"
-            description: "### Link 2 to SW_CORE_02 - LACP - Trunk ###"
+            description: "### Link 2 to SW_CORE_2 - LACP - Trunk ###"
             int_trunk: *int_trunk
             dynamic: "auto"
             channel_config: *channel_config
           - name: "GigabitEthernet1/2"
-            description: "### NONE at VLAN99_Unused/Suspended ###"
-            int_access: *int_access
-            access_vlan: 99
+            description: "### Link to SW_IT_1 - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "desirable"
           - name: "GigabitEthernet1/3"
             description: "### Link to SW_MGMT_OOB_2 - Uplinks to NetCloud 1 - Mgmt/OOB ###"
             int_access: *int_access
             access_vlan: 5
           # Port-Channel interfaces
           - name: "Port-Channel1"
-            description: "### Port-Channel 1 (GE1/0 - GE0/0) to SW_CORE_02 - LACP - Trunk ###"
+            description: "### Port-Channel 1 (GE1/0 - GE0/0) to SW_CORE_2 - LACP - Trunk ###"
             int_trunk: *int_trunk
             int_portchannel: *int_portchannel
             dynamic: "auto"
@@ -224,9 +228,9 @@ modelo:
             glbp_vip: *lst_ip
         # Configuration generation specifications for CORE switches (using templates)
         config_spec: *config_spec
-      ### EOF SW_CORE_01 ###
+      ### EOF SW_CORE_1 ###
 
-      ### SW_CORE_02 ###
+      ### SW_CORE_2 ###
       - hostname: "SW_CORE_2"
         role: "Core Switch L3"
         location: "Legacy Data Center"
@@ -258,25 +262,25 @@ modelo:
             int_trunk: *int_trunk
             dynamic: "desirable"
           - name: "GigabitEthernet1/0"
-            description: "### Link 1 to SW_CORE_01 - LACP - Trunk ###"
+            description: "### Link 1 to SW_CORE_1 - LACP - Trunk ###"
             int_trunk: *int_trunk
             dynamic: "auto"
             channel_config: *channel_config
           - name: "GigabitEthernet1/1"
-            description: "### Link 2 to SW_CORE_01 - LACP - Trunk ###"
+            description: "### Link 2 to SW_CORE_1 - LACP - Trunk ###"
             int_trunk: *int_trunk
             dynamic: "auto"
             channel_config: *channel_config
           - name: "GigabitEthernet1/2"
-            description: "### NONE at VLAN99_Unused/Suspended ###"
-            int_access: *int_access
-            access_vlan: 99
+            description: "### Link to SW_IT_1 - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "desirable"
           - name: "GigabitEthernet1/3"
             description: "### Link to SW_MGMT_OOB_2 - Uplinks to NetCloud 1 - Mgmt/OOB ###"
             int_access: *int_access
             access_vlan: 5
           - name: "Port-Channel1"
-            description: "### Port-Channel 1 (GE1/0 - GE0/0) to SW_CORE_01 - LACP - Trunk ###"
+            description: "### Port-Channel 1 (GE1/0 - GE0/0) to SW_CORE_1 - LACP - Trunk ###"
             int_trunk: *int_trunk
             int_portchannel: *int_portchannel
             dynamic: "desirable"
@@ -334,7 +338,7 @@ modelo:
             glbp_priority: 110
             glbp_vip: *lst_ip
         config_spec: *config_spec
-      ### EOF SW_CORE_02 ###
+      ### EOF SW_CORE_2 ###
 
       ### SW_BLD_A ###
       - hostname: "SW_BLD_A"
@@ -355,11 +359,11 @@ modelo:
             description: "### Link to Cloud0 - Mgmt/OOB ###"
             int_mgmt: *int_mgmt
           - name: "GigabitEthernet0/1"
-            description: "### Link to SW_CORE_01 - Trunk ###"
+            description: "### Link to SW_CORE_1 - Trunk ###"
             int_trunk: *int_trunk
             dynamic: "desirable"
           - name: "GigabitEthernet0/2"
-            description: "### Link to SW_CORE_02 - Trunk ###"
+            description: "### Link to SW_CORE_2 - Trunk ###"
             int_trunk: *int_trunk
             dynamic: "desirable"
           - name: "GigabitEthernet1/0"
@@ -405,11 +409,11 @@ modelo:
             description: "### Link to Cloud0 - Mgmt/OOB ###"
             int_mgmt: *int_mgmt
           - name: "GigabitEthernet0/1"
-            description: "### Link to SW_CORE_01 - Trunk ###"
+            description: "### Link to SW_CORE_1 - Trunk ###"
             int_trunk: *int_trunk
             dynamic: "desirable"
           - name: "GigabitEthernet0/2"
-            description: "### Link to SW_CORE_02 - Trunk ###"
+            description: "### Link to SW_CORE_2 - Trunk ###"
             int_trunk: *int_trunk
             dynamic: "desirable"
           - name: "GigabitEthernet1/0"
@@ -448,6 +452,7 @@ modelo:
         vlans: *sw_vlans
         pvst:
           - mode: "rapid-pvst"
+            rt_pri: "70,80"
         interfaces:
           - name: "GigabitEthernet0/0"
             ip_address: "192.168.100.205"
@@ -455,11 +460,11 @@ modelo:
             description: "### Link to Cloud0 - Mgmt/OOB ###"
             int_mgmt: *int_mgmt
           - name: "GigabitEthernet0/1"
-            description: "### Link to SW_CORE_01 - Trunk ###"
+            description: "### Link to SW_CORE_1 - Trunk ###"
             int_trunk: *int_trunk
             dynamic: "desirable"
           - name: "GigabitEthernet0/2"
-            description: "### Link to SW_CORE_02 - Trunk ###"
+            description: "### Link to SW_CORE_2 - Trunk ###"
             int_trunk: *int_trunk
             dynamic: "desirable"
           - name: "GigabitEthernet1/0"
@@ -485,3 +490,67 @@ modelo:
             description: "### SVI interface for VLAN05_Mgmt/OOB ###"
         config_spec: *config_spec
       ### EOF SW_DC_1 ###
+
+      ### SW_IT_1 ###
+      - hostname: "SW_IT_1"
+        role: "Core Switch L3"
+        location: "IT Data Center"
+        ip_routing: true
+        ssh_connect: 
+          <<: *ssh_connect
+          host: "172.16.5.106"
+        services_config: *services_config
+        vlans: *sw_vlans
+        pvst:
+          - mode: "rapid-pvst"
+        interfaces:
+          - name: "GigabitEthernet0/0"
+            description: "### NONE at VLAN99_Unused/Suspended ###"
+            int_access: *int_access
+            access_vlan: 99
+          - name: "GigabitEthernet0/1"
+            description: "### Link to SW_CORE_1 - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "desirable"
+          - name: "GigabitEthernet0/2"
+            description: "### Link to SW_CORE_2 - Trunk ###"
+            int_trunk: *int_trunk
+            dynamic: "desirable"
+          - name: "GigabitEthernet0/3"
+            description: "### NONE at VLAN99_Unused/Suspended ###"
+            int_access: *int_access
+            access_vlan: 99
+          - name: "GigabitEthernet1/0"
+            description: "### Link 1 to ServerIT1 - Trunk ###"
+            int_trunk:
+              <<: *int_trunk
+              allowed_vlan: "1,5,70,80"
+          - name: "GigabitEthernet1/1"
+            description: "### NONE at VLAN99_Unused/Suspended ###"
+            int_access: *int_access
+            access_vlan: 99
+          - name: "GigabitEthernet1/2"
+            description: "### NONE at VLAN99_Unused/Suspended ###"
+            int_access: *int_access
+            access_vlan: 99
+          - name: "GigabitEthernet1/3"
+            description: "### Link to SW_MGMT_OOB_2 - Uplinks to NetCloud 1 - Mgmt/OOB ###"
+            int_access: *int_access
+            access_vlan: 5
+          - name: "vlan 5"
+            vlan: 5
+            ip_address: "172.16.5.106"
+            subnet_mask: *sn_24
+            description: "### SVI interface for VLAN05_Mgmt/OOB ###"
+          - name: "vlan 70"
+            vlan: 70
+            ip_address: "10.0.70.254"
+            subnet_mask: *sn_24
+            description: "### SVI interface for VLAN70_IT1 ###"
+          - name: "vlan 80"
+            vlan: 80
+            ip_address: "10.0.80.254"
+            subnet_mask: *sn_24
+            description: "### SVI interface for VLAN80_IT2 ###"
+        config_spec: *config_spec
+      ### EOF SW_CORE_2 ###
