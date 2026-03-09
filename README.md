@@ -10,7 +10,7 @@ Este proyecto implementa una solución avanzada de automatización de red basado
 
 - **Proyecto**: Simulacro de Caso de Uso
 - **Versión**: 1.0
-- **Autor**: Roman Ballesteros
+- **Autor**: Roman Jose Ballesteros
 - **Fecha de Creación**: 2025-10-23
 - **Python Requerido**: >= 3.12
 
